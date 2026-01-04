@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import connect from "./utils/database";
 // import User from "./models/Auth";
 import authRoutes from "./routes/Auth"
+import chatRoutes from "./routes/Chat"
 import Room from "./models/Rooms";
 import Chat from "./models/Chat";
 import { WebSocket, WebSocketServer } from "ws";
@@ -42,7 +43,6 @@ let allSockets : User[] = [];
         }
 
         if(parsedMessage.type === "chat") {
-        console.log("here")
             let currentRoom = null;
             for(let i = 0 ; i < allSockets.length ; i++) {
                if(allSockets[i].socket === socket) {
@@ -54,7 +54,6 @@ let allSockets : User[] = [];
             // now broadcast the message to users of a particular room
              for(let i = 0 ; i < allSockets.length ; i++) {
                if(allSockets[i].room === currentRoom) {
-                console.log("inside if block")
                     allSockets[i].socket.send(parsedMessage.payload.message);
                     Chat.create({user : 2 , roomId : Number(currentRoom) , message : parsedMessage.payload.message});
 
@@ -85,6 +84,7 @@ const PORT = process.env.PORT || 4002;
 
 
 app.use("/api/v1/auth" , authRoutes)
+app.use("/api/v1/chats" , chatRoutes)
 
 app.use("/" , (req , res) => {
     res.send("App is running !")
